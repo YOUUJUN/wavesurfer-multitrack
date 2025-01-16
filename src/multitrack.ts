@@ -68,6 +68,7 @@ export type MultitrackEvents = {
   'envelope-points-change': [{ id: TrackId; points: EnvelopePoint[] }]
   'volume-change': [{ id: TrackId; volume: number }]
   'intro-end-change': [{ id: TrackId; endTime: number }]
+  timeupdate: [{ currentTime: number }]
   drop: [{ id: TrackId }]
 }
 
@@ -416,6 +417,8 @@ class MultiTrack extends EventEmitter<MultitrackEvents> {
       const isMuted = newTime < (track.startCue || 0) || newTime > (track.endCue || Infinity)
       if (isMuted != audio.muted) audio.muted = isMuted
     })
+
+    this.emit('timeupdate', { currentTime: this.currentTime })
   }
 
   private onDrag(index: number, delta: number) {
