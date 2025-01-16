@@ -225,13 +225,13 @@ class MultiTrack extends EventEmitter<MultitrackEvents> {
           const startCueRegion = wsRegions.addRegion({
             start: 0,
             end: startCue,
-            color: 'rgba(0, 0, 0, 0.7)',
+            color: 'rgba(84, 176, 176, 0.4)',
             drag: false,
           })
           const endCueRegion = wsRegions.addRegion({
             start: endCue,
             end: this.durations[index],
-            color: 'rgba(0, 0, 0, 0.7)',
+            color: 'rgba(84, 176, 176, 0.4)',
             drag: false,
           })
 
