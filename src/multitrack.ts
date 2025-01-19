@@ -8,6 +8,7 @@
 import WaveSurfer, { type WaveSurferOptions } from 'wavesurfer.js'
 import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.js'
 import TimelinePlugin, { type TimelinePluginOptions } from 'wavesurfer.js/dist/plugins/timeline.js'
+import Hover from './hover.js'
 import EnvelopePlugin, { type EnvelopePoint, type EnvelopePluginOptions } from 'wavesurfer.js/dist/plugins/envelope.js'
 import EventEmitter from 'wavesurfer.js/dist/event-emitter.js'
 import { makeDraggable } from 'wavesurfer.js/dist/draggable.js'
@@ -207,6 +208,16 @@ class MultiTrack extends EventEmitter<MultitrackEvents> {
 
     if (track.id === PLACEHOLDER_TRACK.id) {
       ws.registerPlugin(
+        Hover.create({
+          lineColor: '#ff0000',
+          lineWidth: 1,
+          labelBackground: '#555',
+          labelColor: '#fff',
+          labelSize: '11px',
+        }),
+      )
+
+      ws.registerPlugin(
         TimelinePlugin.create({
           container: this.rendering.containers[0].parentElement,
           ...this.options.timelineOptions,
@@ -226,13 +237,13 @@ class MultiTrack extends EventEmitter<MultitrackEvents> {
           const startCueRegion = wsRegions.addRegion({
             start: 0,
             end: startCue,
-            color: 'rgba(84, 176, 176, 0.4)',
+            color: 'rgba(0, 0, 0, 0.7)',
             drag: false,
           })
           const endCueRegion = wsRegions.addRegion({
             start: endCue,
             end: this.durations[index],
-            color: 'rgba(84, 176, 176, 0.4)',
+            color: 'rgba(0, 0, 0, 0.7)',
             drag: false,
           })
 
@@ -585,11 +596,13 @@ class MultiTrack extends EventEmitter<MultitrackEvents> {
     const minStart = this.options.dragBounds ? 0 : -this.durations[index] - 1
     const maxStart = this.maxDuration - this.durations[index]
 
-    track.startPosition = newStartPosition
-    this.initDurations(this.durations)
-    this.rendering.setContainerOffsets()
-    this.updatePosition(this.currentTime)
-    this.emit('start-position-change', { id: track.id, startPosition: newStartPosition })
+    if (newStartPosition >= minStart && newStartPosition <= maxStart) {
+      track.startPosition = newStartPosition
+      this.initDurations(this.durations)
+      this.rendering.setContainerOffsets()
+      this.updatePosition(this.currentTime)
+      this.emit('start-position-change', { id: track.id, startPosition: newStartPosition })
+    }
   }
 
   public getEnvelopePoints(trackIndex: number): EnvelopePoint[] | undefined {
@@ -610,6 +623,7 @@ function initRendering(tracks: MultitrackTracks, options: MultitrackOptions) {
   const scroll = document.createElement('div')
   scroll.setAttribute('style', 'width: 100%; overflow-x: scroll; overflow-y: hidden; user-select: none;')
   const wrapper = document.createElement('div')
+  wrapper.setAttribute('id', 'multitrack-wrapper')
   wrapper.style.position = 'relative'
   scroll.appendChild(wrapper)
   options.container.appendChild(scroll)
