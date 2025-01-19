@@ -208,6 +208,13 @@ class MultiTrack extends EventEmitter<MultitrackEvents> {
 
     if (track.id === PLACEHOLDER_TRACK.id) {
       ws.registerPlugin(
+        TimelinePlugin.create({
+          container: this.rendering.containers[0].parentElement,
+          ...this.options.timelineOptions,
+        } as TimelinePluginOptions),
+      )
+
+      ws.registerPlugin(
         Hover.create({
           lineColor: '#ff0000',
           lineWidth: 1,
@@ -215,13 +222,6 @@ class MultiTrack extends EventEmitter<MultitrackEvents> {
           labelColor: '#fff',
           labelSize: '11px',
         }),
-      )
-
-      ws.registerPlugin(
-        TimelinePlugin.create({
-          container: this.rendering.containers[0].parentElement,
-          ...this.options.timelineOptions,
-        } as TimelinePluginOptions),
       )
     }
 
@@ -237,13 +237,13 @@ class MultiTrack extends EventEmitter<MultitrackEvents> {
           const startCueRegion = wsRegions.addRegion({
             start: 0,
             end: startCue,
-            color: 'rgba(0, 0, 0, 0.7)',
+            color: 'rgba(84, 176, 176, 0.4)',
             drag: false,
           })
           const endCueRegion = wsRegions.addRegion({
             start: endCue,
             end: this.durations[index],
-            color: 'rgba(0, 0, 0, 0.7)',
+            color: 'rgba(84, 176, 176, 0.4)',
             drag: false,
           })
 
@@ -596,13 +596,11 @@ class MultiTrack extends EventEmitter<MultitrackEvents> {
     const minStart = this.options.dragBounds ? 0 : -this.durations[index] - 1
     const maxStart = this.maxDuration - this.durations[index]
 
-    if (newStartPosition >= minStart && newStartPosition <= maxStart) {
-      track.startPosition = newStartPosition
-      this.initDurations(this.durations)
-      this.rendering.setContainerOffsets()
-      this.updatePosition(this.currentTime)
-      this.emit('start-position-change', { id: track.id, startPosition: newStartPosition })
-    }
+    track.startPosition = newStartPosition
+    this.initDurations(this.durations)
+    this.rendering.setContainerOffsets()
+    this.updatePosition(this.currentTime)
+    this.emit('start-position-change', { id: track.id, startPosition: newStartPosition })
   }
 
   public getEnvelopePoints(trackIndex: number): EnvelopePoint[] | undefined {
